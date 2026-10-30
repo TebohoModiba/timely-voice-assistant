@@ -1,0 +1,17 @@
+# Python
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+
+# Personal data and credentials: never commit
+tracker_data.json
+.aws/
+.env
+
+# Kiro / editor / OS
+.kiro/settings/
+.vscode/
+.DS_Store
+Thumbs.db
