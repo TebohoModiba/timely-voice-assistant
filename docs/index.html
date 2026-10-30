@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Timely: a voice assistant for your day</title>
+<meta name="description" content="Talk to Timely to set reminders, track habits and keep a daily log. Built with Amazon Nova Sonic, Strands Bidi Agents and Kiro.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#08051a;
+  --panel:#110b2b;
+  --line:#2b1f5c;
+  --pink:#ff2e97;
+  --cyan:#19f0ff;
+  --amber:#ffd23f;
+  --text:#ece7ff;
+  --dim:#b0a8dc;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--void);color:var(--text);
+  font-family:"Chakra Petch",system-ui,sans-serif;font-size:1.05rem;line-height:1.6;
+  background-image:
+    radial-gradient(60rem 30rem at 85% -10%,rgba(255,46,151,.22),transparent 60%),
+    radial-gradient(50rem 30rem at -10% 20%,rgba(25,240,255,.14),transparent 60%),
+    linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:auto,auto,44px 44px,44px 44px;
+}
+a{color:var(--cyan)}
+:focus-visible{outline:2px solid var(--amber);outline-offset:3px}
+.wrap{max-width:68rem;margin:0 auto;padding:0 1.25rem}
+header{padding:1.25rem 0}
+header .wrap{display:flex;justify-content:space-between;align-items:center;gap:1rem}
+.brand{font-weight:700;letter-spacing:.04em;color:var(--text);text-decoration:none}
+.brand i{color:var(--pink);font-style:normal}
+nav a{margin-left:1.25rem;text-decoration:none;color:var(--dim)}
+nav a:hover{color:var(--cyan)}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1.05fr 1fr;gap:2.5rem;align-items:center;padding:3rem 0 4rem}
+h1{
+  margin:0 0 .5rem;font-size:clamp(4rem,12vw,8rem);line-height:.95;font-weight:700;letter-spacing:-.02em;
+  color:#fff;
+  text-shadow:0 0 .12em var(--pink),0 0 .4em var(--pink),0 0 .9em rgba(255,46,151,.6),.04em .04em 0 var(--cyan);
+}
+.lede{font-size:1.3rem;max-width:30rem;margin:1rem 0 1.75rem;color:var(--text)}
+.sub{color:var(--dim);max-width:30rem;margin:0 0 2rem}
+.btn{
+  display:inline-block;padding:.8rem 1.4rem;font:inherit;font-weight:700;text-decoration:none;cursor:pointer;
+  background:var(--pink);color:#12001f;border:2px solid var(--pink);
+  box-shadow:0 0 1.2rem rgba(255,46,151,.55);
+  clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px));
+}
+.btn:hover{background:#fff;border-color:#fff}
+.btn.ghost{background:transparent;color:var(--cyan);border-color:var(--cyan);box-shadow:0 0 1rem rgba(25,240,255,.25);margin-left:.6rem}
+.btn.ghost:hover{background:var(--cyan);color:#001a1f}
+
+/* terminal */
+.term{background:var(--panel);border:1px solid var(--line);box-shadow:0 0 0 1px rgba(25,240,255,.15),0 0 2.5rem rgba(25,240,255,.12);}
+.term-bar{display:flex;align-items:center;gap:.4rem;padding:.55rem .8rem;border-bottom:1px solid var(--line);font:500 .8rem "JetBrains Mono",monospace;color:var(--dim)}
+.term-bar b{width:.65rem;height:.65rem;border-radius:50%;background:var(--pink)}
+.term-bar b:nth-child(2){background:var(--amber)}
+.term-bar b:nth-child(3){background:var(--cyan)}
+.term-bar span{margin-left:.5rem}
+.wave{display:flex;align-items:center;gap:3px;height:3.2rem;padding:0 .8rem;border-bottom:1px solid var(--line)}
+.wave i{flex:1;max-width:6px;height:30%;background:linear-gradient(var(--cyan),var(--pink));box-shadow:0 0 .5rem rgba(25,240,255,.6);animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{height:12%}50%{height:90%}}
+.log{padding:1rem .9rem 1.1rem;font:400 .88rem/1.65 "JetBrains Mono",monospace}
+.log p{margin:0 0 .55rem;opacity:0;animation:show .4s forwards}
+.log .you{color:var(--amber)}
+.log .tool{color:var(--cyan)}
+.log .bot{color:var(--text)}
+.log .bot::before,.log .you::before,.log .tool::before{color:var(--dim)}
+.log .you::before{content:"you  "}
+.log .tool::before{content:"tool "}
+.log .bot::before{content:"timely  "}
+.log p:nth-child(1){animation-delay:.6s}
+.log p:nth-child(2){animation-delay:1.6s}
+.log p:nth-child(3){animation-delay:2.6s}
+.log p:nth-child(4){animation-delay:3.8s}
+.log p:nth-child(5){animation-delay:4.8s}
+@keyframes show{to{opacity:1}}
+.note{padding:.5rem .9rem .8rem;color:var(--dim);font-size:.8rem}
+
+/* sections */
+section{padding:3.5rem 0;border-top:1px solid var(--line)}
+h2{margin:0 0 .5rem;font-size:clamp(1.8rem,4vw,2.5rem);line-height:1.15}
+h2 em{font-style:normal;color:var(--pink);text-shadow:0 0 .6em rgba(255,46,151,.6)}
+.intro{color:var(--dim);max-width:38rem;margin:0 0 2rem}
+
+.map{list-style:none;margin:0;padding:0;display:grid;gap:.6rem}
+.map li{display:flex;flex-wrap:wrap;justify-content:space-between;gap:.4rem 1.5rem;padding:.8rem 1rem;background:rgba(17,11,43,.7);border-left:3px solid var(--pink)}
+.map li:nth-child(even){border-left-color:var(--cyan)}
+.map q{quotes:"\201C" "\201D"}
+.map code{font:500 .9rem "JetBrains Mono",monospace;color:var(--cyan)}
+
+.stack{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:1.5rem 2rem;margin:0}
+.stack dt{font-weight:700;color:var(--amber)}
+.stack dd{margin:.15rem 0 0;color:var(--dim)}
+
+.code{position:relative;background:var(--panel);border:1px solid var(--line);padding:1.1rem 1rem;overflow-x:auto}
+.code pre{margin:0;font:400 .88rem/1.7 "JetBrains Mono",monospace;color:var(--text)}
+.copy{position:absolute;top:.6rem;right:.6rem;padding:.3rem .7rem;font:500 .8rem "JetBrains Mono",monospace;background:transparent;color:var(--cyan);border:1px solid var(--cyan);cursor:pointer}
+.copy:hover{background:var(--cyan);color:#001a1f}
+.after{color:var(--dim);margin:1rem 0 0;max-width:42rem}
+
+footer{padding:2.5rem 0 3rem;border-top:1px solid var(--line);color:var(--dim);font-size:.95rem}
+footer p{margin:.3rem 0}
+
+@media (max-width:52rem){
+  .hero{grid-template-columns:1fr;padding-top:1.5rem}
+  nav a:first-child{display:none}
+  .btn.ghost{margin:.7rem 0 0}
+}
+@media (prefers-reduced-motion:reduce){
+  .wave i{animation:none;height:50%}
+  .log p{animation:none;opacity:1}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <a class="brand" href="#top">time<i>ly</i></a>
+    <nav>
+      <a href="#what">What it does</a>
+      <a href="#how">How it’s built</a>
+      <a href="#run">Run it</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <div class="wrap hero">
+    <div>
+      <h1>Timely</h1>
+      <p class="lede">Say what you need to remember. Timely writes it down.</p>
+      <p class="sub">A voice assistant that sets reminders, tracks the habits you mention and keeps a log of what you did each day. No typing, no forms.</p>
+      <a class="btn" href="https://github.com/TebohoModiba/timely-voice-assistant">View the code on GitHub</a>
+      <a class="btn ghost" href="#run">Run it yourself</a>
+    </div>
+
+    <div class="term" role="img" aria-label="Example conversation: the user asks for a reminder to stretch, Timely saves it and confirms.">
+      <div class="term-bar"><b></b><b></b><b></b><span>example session</span></div>
+      <div class="wave" id="wave" aria-hidden="true"></div>
+      <div class="log" aria-hidden="true">
+        <p class="you">Remind me to stretch in two minutes.</p>
+        <p class="tool">get_current_time()</p>
+        <p class="tool">add_reminder(task="stretch", due="22:26")</p>
+        <p class="bot">Done. I’ll remind you to stretch at 22:26.</p>
+        <p class="you">I did a 20 minute walk today.</p>
+      </div>
+      <div class="note">Illustrative example of how a session flows.</div>
+    </div>
+  </div>
+
+  <section id="what">
+    <div class="wrap">
+      <h2>Talk normally. <em>Timely</em> picks the right tool.</h2>
+      <p class="intro">Each thing you say maps to a small Python function. Everything is saved on your own computer in a plain JSON file.</p>
+      <ul class="map">
+        <li><q>Remind me to call the bank tomorrow at 9</q><code>add_reminder</code></li>
+        <li><q>What reminders do I have?</q><code>list_reminders</code></li>
+        <li><q>I finished the bank call</q><code>complete_reminder</code></li>
+        <li><q>I did a 20 minute walk today</q><code>log_habit</code></li>
+        <li><q>How are my habits this week?</q><code>habit_summary</code></li>
+        <li><q>Log that I finished my assignment draft</q><code>add_log_entry</code></li>
+        <li><q>What did I do today?</q><code>get_daily_log</code></li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="how">
+    <div class="wrap">
+      <h2>Built with the AWS community toolkit</h2>
+      <p class="intro">Timely started from the AWS Community Day Johannesburg voice agent tutorial and grew its own tools.</p>
+      <dl class="stack">
+        <div><dt>Amazon Nova Sonic</dt><dd>The speech-to-speech model on Amazon Bedrock. It hears you and talks back in real time.</dd></div>
+        <div><dt>Strands Bidi Agents</dt><dd>Streams audio both ways and calls Python tools when you ask for something.</dd></div>
+        <div><dt>Kiro IDE</dt><dd>The pair-programmer used to scaffold and debug the project.</dd></div>
+        <div><dt>Python 3.12 and PyAudio</dt><dd>Reads your microphone and plays the replies through your speakers.</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section id="run">
+    <div class="wrap">
+      <h2>Run it on your machine</h2>
+      <p class="intro">You need Python 3.12, an AWS account with Amazon Bedrock access, and a microphone. Headphones work best.</p>
+      <div class="code">
+        <button class="copy" id="copy" type="button">Copy</button>
+<pre id="cmds">git clone https://github.com/TebohoModiba/timely-voice-assistant.git
+cd timely-voice-assistant
+py -3.12 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+python voice_agent.py</pre>
+      </div>
+      <p class="after">Add your AWS credentials to <code>~/.aws/credentials</code> and set <code>region = eu-north-1</code> in <code>~/.aws/config</code> first. Keep your keys out of Git. The README has the full setup.</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Built by <a href="https://github.com/TebohoModiba">Teboho Modiba</a> in Johannesburg.</p>
+    <p>Based on the <a href="https://github.com/veliswaan/awscommunitydayjozi-voice-agent-tutorial">AWS Community Day Johannesburg voice agent tutorial</a>.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var wave=document.getElementById("wave");
+  if(wave){
+    for(var i=0;i<46;i++){
+      var b=document.createElement("i");
+      b.style.animationDelay=(-(i*0.09)%1.2).toFixed(2)+"s";
+      b.style.animationDuration=(0.9+((i*37)%7)/10).toFixed(1)+"s";
+      wave.appendChild(b);
+    }
+  }
+  var btn=document.getElementById("copy"),cmds=document.getElementById("cmds");
+  if(btn&&cmds){
+    btn.addEventListener("click",function(){
+      var done=function(ok){
+        btn.textContent=ok?"Copied":"Select and copy";
+        setTimeout(function(){btn.textContent="Copy"},1800);
+      };
+      try{
+        navigator.clipboard.writeText(cmds.textContent).then(function(){done(true)},function(){done(false)});
+      }catch(e){done(false)}
+    });
+  }
+})();
+</script>
+</body>
+</html>
