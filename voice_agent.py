@@ -1,8 +1,7 @@
 """Time-management voice buddy: reminders, habit tracking and a daily log."""
 
 import logging
-logging.basicConfig(level=logging.INFO)
-logging.getLogger("strands").setLevel(logging.DEBUG)
+logging.basicConfig(level=logging.WARNING)
 
 import asyncio
 import json

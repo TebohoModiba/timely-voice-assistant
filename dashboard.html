@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Timely dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--void:#08051a;--panel:#110b2b;--line:#2b1f5c;--pink:#ff2e97;--cyan:#19f0ff;--amber:#ffd23f;--text:#ece7ff;--dim:#b0a8dc}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:var(--void);color:var(--text);font:400 1rem/1.5 "Chakra Petch",system-ui,sans-serif;
+  background-image:radial-gradient(50rem 26rem at 90% -10%,rgba(255,46,151,.2),transparent 60%),radial-gradient(40rem 26rem at -10% 10%,rgba(25,240,255,.12),transparent 60%),
+  linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:auto,auto,44px 44px,44px 44px}
+:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.wrap{max-width:72rem;margin:0 auto;padding:1.25rem}
+header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:.75rem 1.5rem;padding:.5rem 0 1.25rem}
+h1{margin:0;font-size:2.4rem;line-height:1;font-weight:700;color:#fff;text-shadow:0 0 .15em var(--pink),0 0 .5em var(--pink),.04em .04em 0 var(--cyan)}
+.clock{font:500 .95rem "JetBrains Mono",monospace;color:var(--dim);text-align:right}
+.clock b{display:block;font-size:1.4rem;color:var(--cyan);font-weight:500}
+.status{display:inline-flex;align-items:center;gap:.4rem}
+.dot{width:.55rem;height:.55rem;border-radius:50%;background:var(--cyan);box-shadow:0 0 .6rem var(--cyan)}
+.dot.off{background:var(--pink);box-shadow:0 0 .6rem var(--pink)}
+
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin-bottom:1rem}
+.stat{padding:.8rem 1rem;background:rgba(17,11,43,.75);border-left:3px solid var(--cyan)}
+.stat:nth-child(even){border-left-color:var(--pink)}
+.stat b{display:block;font-size:2rem;line-height:1.1;color:#fff}
+.stat span{color:var(--dim);font-size:.9rem}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.panel{background:var(--panel);border:1px solid var(--line);border-top:2px solid var(--pink);padding:1rem 1.1rem 1.1rem;box-shadow:0 0 2rem rgba(25,240,255,.06)}
+.panel.wide{grid-column:1/-1;border-top-color:var(--cyan)}
+h2{margin:0 0 .8rem;font-size:1.15rem}
+h3{margin:1rem 0 .4rem;font-size:.9rem;color:var(--dim);font-weight:500}
+ul{list-style:none;margin:0;padding:0}
+.empty{color:var(--dim);font-size:.95rem;margin:.2rem 0}
+
+.rem{display:flex;justify-content:space-between;align-items:center;gap:.75rem;padding:.6rem .75rem;margin-bottom:.45rem;background:rgba(8,5,26,.6);border-left:3px solid var(--cyan)}
+.rem.over{border-left-color:var(--pink);box-shadow:inset 0 0 1.2rem rgba(255,46,151,.15)}
+.rem.over .when{color:var(--pink)}
+.rem .task{font-weight:500}
+.when{font:400 .82rem "JetBrains Mono",monospace;color:var(--dim)}
+.rem.finished{opacity:.55;border-left-color:var(--line)}
+.rem.finished .task{text-decoration:line-through}
+button.done{font:500 .8rem "JetBrains Mono",monospace;background:transparent;color:var(--cyan);border:1px solid var(--cyan);padding:.3rem .65rem;cursor:pointer;flex:none}
+button.done:hover{background:var(--cyan);color:#001a1f}
+
+.entry{display:grid;grid-template-columns:4.2rem 1fr;gap:.6rem;padding:.45rem 0;border-bottom:1px dashed var(--line)}
+.entry time{font:500 .85rem "JetBrains Mono",monospace;color:var(--amber)}
+.entry.habit time{color:var(--pink)}
+
+.hgrid{display:grid;gap:.45rem;overflow-x:auto}
+.hrow{display:grid;grid-template-columns:minmax(7rem,12rem) repeat(7,minmax(2.2rem,1fr));gap:.4rem;align-items:center}
+.hrow .name{font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hrow .day{text-align:center;font:400 .75rem "JetBrains Mono",monospace;color:var(--dim)}
+.cell{height:1.9rem;background:rgba(8,5,26,.7);border:1px solid var(--line)}
+.cell.on{background:linear-gradient(135deg,var(--cyan),var(--pink));border-color:transparent;box-shadow:0 0 .7rem rgba(25,240,255,.45)}
+.cell.today{outline:1px solid var(--amber)}
+.total{font:400 .8rem "JetBrains Mono",monospace;color:var(--dim)}
+footer{margin-top:1.25rem;color:var(--dim);font-size:.85rem}
+
+@media (max-width:48rem){.stats{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Timely</h1>
+    <div class="clock"><b id="time">--:--</b><span id="date"></span><br><span class="status"><i class="dot" id="dot"></i><span id="state">connecting</span></span></div>
+  </header>
+
+  <div class="stats">
+    <div class="stat"><b id="s-pending">0</b><span>Reminders pending</span></div>
+    <div class="stat"><b id="s-over">0</b><span>Overdue</span></div>
+    <div class="stat"><b id="s-habits">0</b><span>Habits logged today</span></div>
+    <div class="stat"><b id="s-log">0</b><span>Log entries today</span></div>
+  </div>
+
+  <div class="grid">
+    <section class="panel" aria-labelledby="h-rem">
+      <h2 id="h-rem">Reminders</h2>
+      <ul id="pending"></ul>
+      <h3>Completed</h3>
+      <ul id="finished"></ul>
+    </section>
+
+    <section class="panel" aria-labelledby="h-log">
+      <h2 id="h-log">Today’s log</h2>
+      <ul id="log"></ul>
+    </section>
+
+    <section class="panel wide" aria-labelledby="h-hab">
+      <h2 id="h-hab">Habits, last 7 days</h2>
+      <div class="hgrid" id="habits"></div>
+    </section>
+  </div>
+
+  <footer>This page reads tracker_data.json on your own computer and refreshes every few seconds. Nothing leaves your machine.</footer>
+</div>
+
+<script>
+(function(){
+  var pad=function(n){return String(n).padStart(2,"0")};
+  var ymd=function(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())};
+  var stamp=function(d){return ymd(d)+" "+pad(d.getHours())+":"+pad(d.getMinutes())};
+  var $=function(id){return document.getElementById(id)};
+  function el(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e}
+  function clear(node){while(node.firstChild)node.removeChild(node.firstChild)}
+  function empty(node,msg){node.appendChild(el("li","empty",msg))}
+
+  function when(due,today){
+    var parts=due.split(" ");
+    return (parts[0]===today?"Today":parts[0])+" "+(parts[1]||"");
+  }
+
+  function markDone(index){
+    fetch("/api/done",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({index:index})})
+      .then(load).catch(function(){});
+  }
+
+  function render(data){
+    var now=new Date(), today=ymd(now), nowS=stamp(now);
+    var rems=(data.reminders||[]).map(function(r,i){r.i=i;return r});
+    var pending=rems.filter(function(r){return !r.done}).sort(function(a,b){return a.due<b.due?-1:1});
+    var finished=rems.filter(function(r){return r.done}).sort(function(a,b){return a.due<b.due?1:-1}).slice(0,5);
+    var overdue=pending.filter(function(r){return r.due<=nowS});
+    var habitsToday=(data.habits||[]).filter(function(h){return h.date===today});
+    var logToday=(data.log||[]).filter(function(e){return e.date===today}).sort(function(a,b){return a.time<b.time?-1:1});
+
+    $("s-pending").textContent=pending.length;
+    $("s-over").textContent=overdue.length;
+    $("s-habits").textContent=habitsToday.length;
+    $("s-log").textContent=logToday.length;
+
+    var pl=$("pending");clear(pl);
+    if(!pending.length)empty(pl,"Nothing pending. Ask Timely to remind you of something.");
+    pending.forEach(function(r){
+      var li=el("li","rem"+(r.due<=nowS?" over":""));
+      var left=el("div");
+      left.appendChild(el("div","task",r.task));
+      left.appendChild(el("div","when",(r.due<=nowS?"Due ":"")+when(r.due,today)));
+      var b=el("button","done","Mark done");
+      b.type="button";
+      b.addEventListener("click",function(){markDone(r.i)});
+      li.appendChild(left);li.appendChild(b);pl.appendChild(li);
+    });
+
+    var fl=$("finished");clear(fl);
+    if(!finished.length)empty(fl,"No completed reminders yet.");
+    finished.forEach(function(r){
+      var li=el("li","rem finished");
+      var left=el("div");
+      left.appendChild(el("div","task",r.task));
+      left.appendChild(el("div","when",when(r.due,today)));
+      li.appendChild(left);fl.appendChild(li);
+    });
+
+    var ll=$("log");clear(ll);
+    if(!logToday.length&&!habitsToday.length)empty(ll,"Nothing logged today. Tell Timely what you did.");
+    logToday.forEach(function(e){
+      var li=el("li","entry");li.appendChild(el("time","",e.time));li.appendChild(el("span","",e.entry));ll.appendChild(li);
+    });
+    habitsToday.forEach(function(h){
+      var li=el("li","entry habit");li.appendChild(el("time","","habit"));
+      li.appendChild(el("span","",h.habit+(h.note?" ("+h.note+")":"")));ll.appendChild(li);
+    });
+
+    var days=[];
+    for(var k=6;k>=0;k--){var d=new Date();d.setDate(d.getDate()-k);days.push(d)}
+    var names={};
+    (data.habits||[]).forEach(function(h){(names[h.habit]=names[h.habit]||{})[h.date]=true});
+    var hg=$("habits");clear(hg);
+    var keys=Object.keys(names).sort();
+    if(!keys.length){hg.appendChild(el("p","empty","No habits yet. Try saying: I did a 20 minute walk today."))}
+    else{
+      var head=el("div","hrow");head.appendChild(el("span","name",""));
+      days.forEach(function(d){head.appendChild(el("span","day",d.toLocaleDateString(undefined,{weekday:"short"})))});
+      hg.appendChild(head);
+      keys.forEach(function(name){
+        var row=el("div","hrow");row.appendChild(el("span","name",name));
+        days.forEach(function(d){
+          var key=ymd(d);
+          var c=el("span","cell"+(names[name][key]?" on":"")+(key===today?" today":""));
+          c.title=name+", "+key+(names[name][key]?": done":": not logged");
+          row.appendChild(c);
+        });
+        hg.appendChild(row);
+      });
+    }
+  }
+
+  function tick(){
+    var n=new Date();
+    $("time").textContent=pad(n.getHours())+":"+pad(n.getMinutes());
+    $("date").textContent=n.toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"long"});
+  }
+
+  function setState(ok){
+    $("dot").className="dot"+(ok?"":" off");
+    $("state").textContent=ok?"live":"can’t reach dashboard.py";
+  }
+
+  function load(){
+    fetch("/api/data",{cache:"no-store"}).then(function(r){return r.json()})
+      .then(function(d){render(d);setState(true)}).catch(function(){setState(false)});
+  }
+
+  tick();load();
+  setInterval(tick,15000);
+  setInterval(load,1500);
+})();
+</script>
+</body>
+</html>

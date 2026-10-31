@@ -87,6 +87,11 @@ h1{
 @keyframes show{to{opacity:1}}
 .note{padding:.5rem .9rem .8rem;color:var(--dim);font-size:.8rem}
 
+/* demo */
+.demo video{display:block;width:100%;max-height:80vh;background:#000;border:1px solid var(--line);box-shadow:0 0 0 1px rgba(255,46,151,.25),0 0 3rem rgba(255,46,151,.2)}
+.demo figcaption{margin-top:.75rem;color:var(--dim);font-size:.95rem;max-width:42rem}
+.demo{margin:0}
+
 /* sections */
 section{padding:3.5rem 0;border-top:1px solid var(--line)}
 h2{margin:0 0 .5rem;font-size:clamp(1.8rem,4vw,2.5rem);line-height:1.15}
@@ -129,6 +134,7 @@ footer p{margin:.3rem 0}
   <div class="wrap">
     <a class="brand" href="#top">time<i>ly</i></a>
     <nav>
+      <a href="#demo">Demo</a>
       <a href="#what">What it does</a>
       <a href="#how">How it’s built</a>
       <a href="#run">Run it</a>
@@ -142,8 +148,9 @@ footer p{margin:.3rem 0}
       <h1>Timely</h1>
       <p class="lede">Say what you need to remember. Timely writes it down.</p>
       <p class="sub">A voice assistant that sets reminders, tracks the habits you mention and keeps a log of what you did each day. No typing, no forms.</p>
+      <p class="sub">Timely runs on your own computer, so this page can’t start it for you. Watch the demo, then run it yourself in a few minutes.</p>
       <a class="btn" href="https://github.com/TebohoModiba/timely-voice-assistant">View the code on GitHub</a>
-      <a class="btn ghost" href="#run">Run it yourself</a>
+      <a class="btn ghost" href="#demo">Watch the demo</a>
     </div>
 
     <div class="term" role="img" aria-label="Example conversation: the user asks for a reminder to stretch, Timely saves it and confirms.">
@@ -159,6 +166,20 @@ footer p{margin:.3rem 0}
       <div class="note">Illustrative example of how a session flows.</div>
     </div>
   </div>
+
+  <section id="demo">
+    <div class="wrap">
+      <h2>See it <em>work</em></h2>
+      <p class="intro">A real recording: I talk to Timely while the dashboard fills in next to it.</p>
+      <figure class="demo">
+        <video controls preload="metadata" playsinline>
+          <source src="demo.mp4" type="video/mp4">
+          Your browser can’t play this video. <a href="demo.mp4">Download the demo</a>.
+        </video>
+        <figcaption>Voice AI isn’t perfect. In this take it heard “guitar” as “game guitar”, and the logging still worked.</figcaption>
+      </figure>
+    </div>
+  </section>
 
   <section id="what">
     <div class="wrap">
